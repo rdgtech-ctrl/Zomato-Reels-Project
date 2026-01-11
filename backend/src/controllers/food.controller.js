@@ -4,28 +4,37 @@ const { v4: uuid } = require("uuid")
 
 async function createFood(req, res) {
     try {
-        console.log("Food Partner:", req.foodPartner);
-        console.log("Body:", req.body)
-        console.log("File:", req.file)
-
+        // Check if file exists
         if (!req.file) {
             return res.status(400).json({
-                message: "No file uploaded"
+                message: "Video file is required"
             })
         }
 
-        console.log("File buffer:", req.file.buffer);
-        
+        // Check if required fields exist
+        if (!req.body.name || !req.body.description) {
+            return res.status(400).json({
+                message: "Name and description are required"
+            })
+        }
+
+        // Upload file to ImageKit
         const fileUploadResult = await storageService.uploadFile(req.file.buffer, uuid())
 
-        console.log("Upload result:", fileUploadResult)
+        // Create food item in database
+        const foodItem = await foodModel.create({
+            name: req.body.name,
+            description: req.body.description,
+            video: fileUploadResult.url,
+            foodPartner: req.foodPartner._id
+        })
 
         res.status(201).json({
-            message: "Food item created",
-            data: fileUploadResult
+            message: "Food created successfully",
+            food: foodItem
         })
     } catch (error) {
-        console.error("Error:", error);
+        console.error("Error creating food:", error);
         res.status(500).json({
             message: "Error creating food",
             error: error.message
