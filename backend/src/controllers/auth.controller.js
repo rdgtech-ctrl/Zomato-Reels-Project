@@ -1,13 +1,10 @@
-// logic inside apis are created over here
-// login api is created in here
-
+// Add these at the top if not already there
 const userModel = require("../models/user.model")
 const foodPartnerModel = require("../models/foodpartner.model");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 async function registerUser(req, res) {
-
     const { fullName, email, password } = req.body;
 
     const isUserAlreadyExists = await userModel.findOne({
@@ -32,7 +29,12 @@ async function registerUser(req, res) {
         id: user._id,
     }, process.env.JWT_SECRET)
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000
+    })
 
     res.status(201).json({
         message: "User registered successfully",
@@ -67,7 +69,13 @@ async function loginUser(req, res) {
     const token = jwt.sign({
         id: user._id,
     }, process.env.JWT_SECRET)
-    res.cookie("token", token)
+    
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000
+    })
 
     res.status(200).json({
         message: "User logged in successfully",
@@ -87,7 +95,6 @@ function logoutUser(req, res) {
 }
 
 async function registerFoodPartner(req, res) {
-
     const { name, email, password, phone, address, contactName } = req.body;
 
     const isAccountAlreadyExists = await foodPartnerModel.findOne({
@@ -115,7 +122,12 @@ async function registerFoodPartner(req, res) {
         id: foodPartner._id,
     }, process.env.JWT_SECRET)
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000
+    })
 
     res.status(201).json({
         message: "Food partner registered successfully",
@@ -128,8 +140,6 @@ async function registerFoodPartner(req, res) {
             phone: foodPartner.phone
         }
     })
-
-
 }
 
 async function loginFoodPartner(req, res) {
@@ -145,8 +155,6 @@ async function loginFoodPartner(req, res) {
         })
     }
 
-
-
     const isPasswordValid = await bcrypt.compare(password, foodPartner.password);
 
     if (!isPasswordValid) {
@@ -159,7 +167,12 @@ async function loginFoodPartner(req, res) {
         id: foodPartner._id,
     }, process.env.JWT_SECRET)
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60 * 1000
+    })
 
     res.status(200).json({
         message: "Food partner logged in successfully",
@@ -177,6 +190,7 @@ function logoutFoodPartner(req, res) {
         message: "Food partner logged out successfully"
     });
 }
+
 
 module.exports = {
     registerUser,

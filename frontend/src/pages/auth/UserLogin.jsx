@@ -5,22 +5,23 @@ import { useNavigate } from 'react-router-dom';
 
 const UserLogin = () => {
   const navigate = useNavigate();
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const email = e.target.email.value;
     const password = e.target.password.value;
+
     const response = await axios.post("http://localhost:3000/api/auth/user/login", {
       email,
       password
     }, { withCredentials: true });
 
-    console.log(response.data);
+    console.log("Login response:", response.data);
+    console.log("Cookies after login:", document.cookie);
 
-    navigate("/");//Redirect to home after login
-
+    navigate("/");
   };
-
 
   return (
     <div className="auth-page-wrapper">

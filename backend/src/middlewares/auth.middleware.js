@@ -34,7 +34,8 @@ async function authFoodPartnerMiddleware(req, res, next) {
 
 async function authUserMiddleware(req, res, next) {
 
-    const token = req.cookies.token;
+    const token = req.cookies.token ||
+        req.headers.authorization?.split(' ')[1];
 
     if (!token) {
         return res.status(401).json({
@@ -47,8 +48,13 @@ async function authUserMiddleware(req, res, next) {
 
         const user = await userModel.findById(decoded.id);
 
-        req.user = user
+        if (!user) {
+            return res.status(401).json({
+                message: "User not found"
+            })
+        }
 
+        req.user = user
         next()
 
     } catch (err) {
